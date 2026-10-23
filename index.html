@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Plate · Food Health Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.3-1.8a1.5 1.5 0 0 1 1.2-.7h2.8a1.5 1.5 0 0 1 1.2.7L15.9 6h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.4"/></symbol>
+    <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="m20.5 15.5-4.6-4.6a1 1 0 0 0-1.4 0L5.5 19.5"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15.5"/><path d="M4 20v-4.5h4.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c.6 3-2 4.6-2 7a2 2 0 0 0 4 0c0-.8-.3-1.5-.7-2C16 9.6 18 12 18 15a6 6 0 0 1-12 0c0-4 3-6.6 6-12z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5.5 12.5 4 4 9-9"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v.2h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C10 4 4 9.5 4 16.5c0 1.2.2 2.3.5 3.5 1.2.3 2.3.5 3.5.5C15 20.5 20 14 20 4z"/><path d="M4.5 19.5 13 11"/></symbol>
+  </svg>
+
+  <div class="ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <main class="app" id="app">
+
+    <!-- HOME -->
+    <section class="view view-home is-active" id="viewHome" aria-label="Start">
+      <header class="brand rise" style="--d:0">
+        <span class="logo"><svg class="i"><use href="#i-leaf"/></svg></span>
+        <span class="wordmark">Plate</span>
+      </header>
+
+      <div class="hero">
+        <div class="orb rise" style="--d:1" aria-hidden="true">
+          <span class="orb-ring"></span><span class="orb-ring"></span>
+          <div class="orb-core"><svg class="i"><use href="#i-leaf"/></svg></div>
+        </div>
+        <h1 class="rise" style="--d:2">Know your plate.</h1>
+        <p class="lede rise" style="--d:3">Snap a meal. See what’s inside.</p>
+      </div>
+
+      <div class="actions rise" style="--d:4">
+        <button class="btn btn-primary" id="btnCamera" type="button">
+          <svg class="i"><use href="#i-camera"/></svg><span>Take photo</span>
+        </button>
+        <button class="btn btn-secondary" id="btnLibrary" type="button">
+          <svg class="i"><use href="#i-photo"/></svg><span>Choose photo</span>
+        </button>
+        <p class="fineprint">AI estimates only. Not medical advice.</p>
+      </div>
+
+      <input type="file" id="inputCapture" accept="image/*" capture="environment" hidden>
+      <input type="file" id="inputLibrary" accept="image/*" hidden>
+    </section>
+
+    <!-- SCANNING -->
+    <section class="view view-scan" id="viewScan" aria-label="Analyzing" aria-live="polite">
+      <div class="scan-frame">
+        <img id="scanImg" alt="Your food photo">
+        <div class="scan-grid"></div>
+        <div class="scan-line"></div>
+        <div class="scan-corners"><i></i><i></i><i></i><i></i></div>
+        <span class="scan-badge"><b></b>Analyzing</span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-head">
+          <span class="step-label" id="stepLabel">Preparing image</span>
+          <span class="pct" id="pct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <ol class="steps" id="steps">
+          <li>Identify</li><li>Ingredients</li><li>Health</li>
+        </ol>
+      </div>
+
+      <button class="btn btn-ghost" id="btnCancel" type="button">Cancel</button>
+    </section>
+
+    <!-- RESULT -->
+    <section class="view view-result" id="viewResult" aria-label="Results">
+      <div class="result-hero">
+        <img id="resultImg" alt="Analyzed food">
+        <button class="icon-btn" id="btnBack" type="button" aria-label="Back">
+          <svg class="i"><use href="#i-back"/></svg>
+        </button>
+      </div>
+
+      <article class="sheet">
+        <div class="result-head reveal" style="--d:0">
+          <div>
+            <h2 id="foodName">Your meal</h2>
+            <p class="summary" id="foodSummary"></p>
+            <span class="pill" id="calories"><svg class="i"><use href="#i-flame"/></svg><span id="caloriesText"></span></span>
+          </div>
+          <div class="score" id="score" role="img" aria-label="Health score">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <circle class="score-track" cx="32" cy="32" r="28"/>
+              <circle class="score-bar" id="scoreBar" cx="32" cy="32" r="28"/>
+            </svg>
+            <div class="score-num"><b id="scoreNum">0</b><small>score</small></div>
+          </div>
+        </div>
+
+        <section class="block reveal" style="--d:1" id="secIngredients">
+          <h3>Likely ingredients</h3>
+          <div class="chips" id="ingredients"></div>
+        </section>
+
+        <section class="block reveal" style="--d:2" id="secBenefits">
+          <h3>Good for you</h3>
+          <ul class="list" id="benefits"></ul>
+        </section>
+
+        <section class="block reveal" style="--d:3" id="secRisks">
+          <h3>Watch out</h3>
+          <ul class="list" id="risks"></ul>
+        </section>
+
+        <div class="tip reveal" style="--d:4" id="tip">
+          <svg class="i"><use href="#i-bulb"/></svg><p id="tipText"></p>
+        </div>
+
+        <p class="raw" id="raw" hidden></p>
+
+        <button class="btn btn-primary again reveal" style="--d:5" id="btnAgain" type="button">
+          <svg class="i"><use href="#i-camera"/></svg><span>Scan another</span>
+        </button>
+      </article>
+    </section>
+  </main>
+
+  <!-- CAMERA SHEET -->
+  <div class="camera" id="camera" aria-hidden="true" role="dialog" aria-label="Camera">
+    <video id="video" playsinline muted autoplay></video>
+    <div class="cam-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="cam-spinner" aria-hidden="true"></div>
+    <div class="cam-top">
+      <button class="icon-btn" id="btnCamClose" type="button" aria-label="Close camera">
+        <svg class="i"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="cam-bottom">
+      <button class="icon-btn lg" id="btnCamLibrary" type="button" aria-label="Choose from library">
+        <svg class="i"><use href="#i-photo"/></svg>
+      </button>
+      <button class="shutter" id="btnShutter" type="button" aria-label="Take photo"><span></span></button>
+      <button class="icon-btn lg" id="btnFlip" type="button" aria-label="Switch camera">
+        <svg class="i"><use href="#i-flip"/></svg>
+      </button>
+    </div>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <div class="drop" id="drop" aria-hidden="true"><div><svg class="i"><use href="#i-photo"/></svg><span>Drop to analyze</span></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
